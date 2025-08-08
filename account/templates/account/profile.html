@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="profile-page-container">
+
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+        <div class="profile-picture">
+            {% if user.userprofile.photo %}
+            <img src="{{ user.userprofile.photo.url }}" class="profile-photo">
+            {% else %}
+            <img src="{% static 'images/default_user_profile.webp' %}" class="profile-photo">
+            {% endif %}
+        </div>
+        <h2>{{ user.username }}</h2>
+        <p><i class="fa fa-envelope"></i> {{ user.email }}</p>
+        <p><i class="fa fa-calendar"></i> Joined on {{ user.date_joined|date:"F j, Y" }}</p>
+
+        <div class="profile-stats">
+            <p><strong>Posts:</strong> {{ posts_count }}</p>
+            <p><strong>Followers:</strong> {{ followers_count }}</p>
+            <p><strong>Following:</strong> {{ following_count }}</p>
+        </div>
+
+        <div class="profile-actions">
+            <a href="{% url 'edit' %}" class="profile-btn">Edit Profile</a>
+            <a href="{% url 'password_change' %}" class="profile-btn">Change Password</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-content">
+        <div class="profile-tab-bar">
+            <a href="?tab=posts"
+                class="profile-tab {% if tab == 'posts' or not tab %}profile-active{% endif %}">Posts</a>
+            <a href="?tab=followers"
+                class="profile-tab {% if tab == 'followers' %}profile-active{% endif %}">Followers</a>
+            <a href="?tab=following"
+                class="profile-tab {% if tab == 'following' %}profile-active{% endif %}">Following</a>
+        </div>
+
+        <div class="profile-tab-content">
+            {% if tab == 'followers' %}
+            {% include "account/profile/profile_followers.html" %}
+            {% elif tab == 'following' %}
+            {% include "account/profile/profile_following.html" %}
+            {% else %}
+            {% include "account/profile/profile_posts.html" %}
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

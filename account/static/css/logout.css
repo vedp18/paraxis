@@ -1,0 +1,30 @@
+.logout-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+}
+
+.logout-card {
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.logout-card h1 {
+    margin-bottom: 1rem;
+}
+
+.login-again-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-again-link:hover {
+    text-decoration: underline;
+}

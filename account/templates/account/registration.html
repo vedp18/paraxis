@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Create an account{% endblock %}
+
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <h2 class="register-heading">Create Account</h2>
+
+        {% if registration_form.errors %}
+        <div class="field-error">
+            <ul>
+                {% for field in registration_form %}
+                {% for error in field.errors %}
+                <li>{{ error|escape }}</li>
+                {% endfor %}
+                {% endfor %}
+                {% for error in registration_form.non_field_errors %}
+                <li>{{ error|escape }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="">
+            <!-- {{ registration_form.as_p }} -->
+
+            {% for field in registration_form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                <!-- {% if field.errors %}
+                <div class="field-error">
+                    {% for error in field.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+                {% endif %} -->
+            </div>
+            {% endfor %}
+            
+            {% csrf_token %}
+            <button type="submit" class="register-button">Register</button>
+        </form>
+
+        <div class="register-footer">
+            Already have an account? <a href="{% url 'login' %}">Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

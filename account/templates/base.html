@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Social Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=18">
+    <!-- loading login css -->
+    {% block login_css %}{% endblock %}
+    <!-- loading change_password css -->
+    {% block password_change_form_css %}{% endblock %}
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header id="header">
+        <div class="container">
+            <div class="logo">PARAXIS</div>
+
+            {% if request.user.is_authenticated %}
+            <nav class="nav-menu">
+                <ul>
+                    <li {% if section == 'profile' %}class="active" {% endif %}>
+                        <a href="{% url 'profile' %}">Profile</a>
+                    </li>
+                    <!-- <li {% if section == 'posts' %}class="active" {% endif %}>
+                        <a href="#">Posts</a>
+                    </li>
+                    <li {% if section == 'followers' %}class="active" {% endif %}>
+                        <a href="#">Followers</a>
+                    </li>
+                    <li {% if section == 'profile' %}class="active" {% endif %}>
+                        <a href="#">Profile</a>
+                    </li> -->
+                </ul>
+            </nav>
+            {% endif %}
+
+            <div class="user-actions">
+                {% if request.user.is_authenticated %}
+                <span class="welcome-msg">
+                    Welcome, {{ request.user.first_name|default:request.user.username }}!
+                </span>
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+                {% else %}
+                <form method="get" action="{% url 'login' %}">
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% if messages %}
+    <section class="messages">
+        <ul>
+            {% for message in messages %}
+            <li class="alert {{ message.tags }}">
+                {{ message|safe }}
+                <span class="close">&times;</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <main id="main-content">
+        {% block content %}
+        <!-- Page-specific content goes here -->
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            &copy; {{ year|default:2025 }} Paraxis – Connect with your world
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+{% load static %}
+<div class="following-list">
+    {% for user in following %}
+    <div class="profile-user-card">
+        <img src="{% static user.photo %}" class="profile-user-photo">
+        <p>{{ user.username }}</p>
+    </div>
+    {% empty %}
+    <p>You're not following anyone yet.</p>
+    {% endfor %}
+</div>

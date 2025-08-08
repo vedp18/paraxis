@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Log-in{% endblock %}
+
+{% block login_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h2 class="login-heading">Log in to your account</h2>
+        
+        {% if form.errors %}
+        <div class="field-error">
+            <ul>
+                {% for field in form %}
+                {% for error in field.errors %}
+                <li>{{ error|escape }}</li>
+                {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <li>{{ error|escape }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <!-- {{ form.as_p }} -->
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+            <input type="hidden" name="next" value="{{ next }}" />
+            <button type="submit" class="login-button">Log in</button>
+        </form>
+
+        <div class="login-footer">
+            <p>Forgot Password? <a href="{% url 'password_reset' %}">Reset Password</a></p>
+            <p>Don’t have an account? <a href="{% url 'register' %}">Sign up</a></p>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

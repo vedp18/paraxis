@@ -1,0 +1,11 @@
+{% load static %}
+<div class="profile-post-grid">
+    {% for post in posts %}
+    <div class="profile-post-card">
+        <img src="{% static post.image %}" class="post-img">
+        <p class="post-date">{{ post.created }}</p>
+    </div>
+    {% empty %}
+    <p>No posts to show.</p>
+    {% endfor %}
+</div>
