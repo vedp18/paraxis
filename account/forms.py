@@ -2,6 +2,10 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import UserProfile
 from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth import password_validation, get_user_model
+from django.core.exceptions import ValidationError
+
+User = get_user_model()
 
 # Login Form
 class LoginForm(forms.Form):
@@ -15,13 +19,20 @@ class RegistrationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'email']
+        fields = ['username', 'first_name', 'last_name', 'email']
 
     # for validating password and password2 are same or not
     def clean_password2(self):
         cd = self.cleaned_data
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Passwords do not match.')
+        else:
+            email = self.cleaned_data.get('email')
+            tmp_user = User(username=cd['username'], first_name=cd['first_name'], last_name=cd['last_name'], email=email)
+            try:
+                password_validation.validate_password(cd['password2'], user=tmp_user)
+            except ValidationError as error:
+                raise forms.ValidationError(error)
         return cd['password2']
     
     # for validating email used, is already not existed
@@ -30,6 +41,8 @@ class RegistrationForm(forms.ModelForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('Account with this e-mail already exists, try logging using this email')
         return email
+    
+    
     
 
 # UserEditForm

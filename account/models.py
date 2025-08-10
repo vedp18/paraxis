@@ -17,3 +17,7 @@ class UserProfile(models.Model):
     # str method
     def __str__(self):
         return f'UserProfile of {self.user.username}'
+    
+    def delete(self, *args, **kwargs):
+        self.user.delete()
+        super().delete(*args, **kwargs)
