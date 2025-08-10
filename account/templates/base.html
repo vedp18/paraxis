@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Social Dashboard{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=32">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=33">
     <!-- loading login css -->
     {% block login_css %}{% endblock %}
     <!-- loading change_password css -->
@@ -80,6 +80,15 @@
             &copy; {{ year|default:2025 }} Paraxis – Connect with your world
         </div>
     </footer>
+    <script src="//cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script>
+        const csrftoken = Cookies.get('csrftoken');
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // DOM loaded
+            {% block domready %}
+            {% endblock %}
+        })
+    </script>
 </body>
 
 </html>

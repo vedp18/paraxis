@@ -807,7 +807,7 @@ body {
     color: #555;
 }
 
-.image-likes {
+.post-likes {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
@@ -830,6 +830,21 @@ body {
     color: #888;
     font-style: italic;
 }
+
+.like-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 8px;
+    background-color: #2c3e50;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+}
+
 
 
 

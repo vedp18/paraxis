@@ -1,0 +1,10 @@
+{% for user in post.likes.all %}
+<div class="like-user">
+    {% if user.userprofile.photo %}
+    <img src="{{ user.userprofile.photo.url }}" alt="{{ user.first_name }}">
+    {% endif %}
+    <p>{{ user.first_name }}</p>
+</div>
+{% empty %}
+<p class="no-likes">Nobody likes this image yet.</p>
+{% endfor %}

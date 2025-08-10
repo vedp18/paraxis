@@ -15,7 +15,7 @@ class Post(models.Model):
     description = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                   related_name='images_liked',
+                                   related_name='post_liked',
                                    blank=True)
     
     class Meta:

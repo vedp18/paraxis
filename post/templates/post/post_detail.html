@@ -14,9 +14,17 @@
         <div class="post-info">
             {% with total_likes=post.likes.count %}
             <div class="likes-section">
-                <span class="likes-count">
+                <span class="likes-count" data-count="{{ total_likes }}">
                     <strong>{{ total_likes }}</strong> like{{ total_likes|pluralize }}
                 </span>
+                <a href="#" data-id="{{ post.id }}" data-action="{% if request.user in post.likes.all %}un{% endif %}like"
+                    class="like-btn">
+                    {% if request.user not in post.likes.all %}
+                    👍 Like
+                    {% else %}
+                    👎🏼 Unlike
+                    {% endif %}
+                </a>
             </div>
 
             <div class="post-description">
@@ -24,8 +32,8 @@
             </div>
 
             <h3>People who liked this:</h3>
-            <div class="image-likes">
-                {% for user in likes %}
+            <div class="post-likes">
+                {% for user in post.likes.all %}
                 <div class="like-user">
                     {% if user.userprofile.photo %}
                     <img src="{{ user.userprofile.photo.url }}" alt="{{ user.first_name }}">
@@ -40,4 +48,59 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block domready %}
+const_url = '{% url "post:like" %}';
+var options = {
+method: 'POST',
+headers: {'X-CSRFToken': csrftoken},
+mode: 'same-origin'
+}
+
+document.querySelector('a.like-btn')
+.addEventListener('click', function(e){
+e.preventDefault();
+var likeButton = this;
+
+// add request body
+var formData = new FormData();
+formData.append('id', likeButton.dataset.id);
+formData.append('action', likeButton.dataset.action);
+options['body'] = formData;
+
+// send HTTP request
+fetch(const_url, options)
+.then(response => response.json())
+.then(data => {
+if (data['status'] === 'ok')
+{
+var previousAction = likeButton.dataset.action;
+
+// toggle button text and data-action
+var action = previousAction === 'like' ? 'unlike' : 'like';
+likeButton.dataset.action = action;
+likeButton.textContent = action === 'like' ? '👍 Like' : '👎🏼 Unlike';
+
+// update like count
+var likeSpan = document.querySelector('span.likes-count');
+var totalLikes = parseInt(likeSpan.dataset.count);
+
+totalLikes = previousAction === 'like' ? totalLikes + 1 : totalLikes - 1;
+likeSpan.dataset.count = totalLikes;
+likeSpan.innerHTML = `<strong>${totalLikes}</strong> like${totalLikes === 1 ? '' : 's'}`;
+
+
+// ⬇ Replace liked users list instantly
+document.querySelector('.post-likes').innerHTML = data.liked_users_html;
+
+
+
+}
+})
+
+
+
+});
+
 {% endblock %}
