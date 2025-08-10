@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Create an account{% endblock %}
 
@@ -6,47 +7,66 @@
 {% block content %}
 <div class="register-container">
     <div class="register-card">
-        <h2 class="register-heading">Create Account</h2>
+        <div class="left">
+            <h2 class="register-heading">Create Account</h2>
 
-        {% if registration_form.errors %}
-        <div class="field-error">
-            <ul>
-                {% for field in registration_form %}
-                {% for error in field.errors %}
-                <li>{{ error|escape }}</li>
-                {% endfor %}
-                {% endfor %}
-                {% for error in registration_form.non_field_errors %}
-                <li>{{ error|escape }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        <form method="POST" class="">
-            <!-- {{ registration_form.as_p }} -->
-
-            {% for field in registration_form %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                <!-- {% if field.errors %}
-                <div class="field-error">
+            {% if registration_form.errors %}
+            <div class="field-error">
+                <ul>
+                    {% for field in registration_form %}
                     {% for error in field.errors %}
-                    <small>{{ error }}</small>
+                    <li>{{ error|escape }}</li>
                     {% endfor %}
-                </div>
-                {% endif %} -->
+                    {% endfor %}
+                    {% for error in registration_form.non_field_errors %}
+                    <li>{{ error|escape }}</li>
+                    {% endfor %}
+                </ul>
             </div>
-            {% endfor %}
-            
-            {% csrf_token %}
-            <button type="submit" class="register-button">Register</button>
-        </form>
+            {% endif %}
 
-        <div class="register-footer">
-            Already have an account? <a href="{% url 'login' %}">Login</a>
+            <form method="POST" class="">
+                <!-- {{ registration_form.as_p }} -->
+
+                {% for field in registration_form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    <!-- {% if field.errors %}
+                    <div class="field-error">
+                        {% for error in field.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %} -->
+                </div>
+                {% endfor %}
+
+                {% csrf_token %}
+                <button type="submit" class="register-button">Register</button>
+            </form>
+
+            <div class="register-footer">
+                Already have an account? <a href="{% url 'login' %}">Login</a>
+            </div>
         </div>
+
+        <div class="vertical-divider"></div>
+
+        <div class="right">
+            <h2 class="register-heading">Sign Up using </h2>
+            <div class="social">
+                <a href="{% url 'social:begin' 'twitter' %}" class="social-btn twitter">
+                    <img src="{% static 'icons/x_icon_logo.svg' %}" alt="Twitter">
+                </a>
+
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="social-btn google">
+                    <img src="{% static 'icons/google-icon-logo.svg' %}" alt="Google">
+                </a>
+            </div>
+        </div>
+
+
     </div>
 </div>
 {% endblock %}

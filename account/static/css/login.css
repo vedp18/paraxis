@@ -20,6 +20,7 @@
 
 /* Heading */
 .login-heading {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     margin-bottom: 25px;
     font-size: 24px;
@@ -39,12 +40,12 @@
 .login-card input[type="text"],
 .login-card input[type="password"] {
     width: 100%;
-        padding: 10px 14px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 15px;
-        box-sizing: border-box;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
 }
 
 /* Submit button */

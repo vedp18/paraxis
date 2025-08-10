@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="post-detail-container">
+    <h1 class="post-title">{{ post.title }}</h1>
+
+    <div class="post-content">
+        <div class="post-image">
+            <img src="{{ post.image.url }}" alt="{{ post.title }}">
+        </div>
+
+        <div class="post-info">
+            {% with total_likes=post.likes.count %}
+            <div class="likes-section">
+                <span class="likes-count">
+                    <strong>{{ total_likes }}</strong> like{{ total_likes|pluralize }}
+                </span>
+            </div>
+
+            <div class="post-description">
+                {{ post.description|linebreaks }}
+            </div>
+
+            <h3>People who liked this:</h3>
+            <div class="image-likes">
+                {% for user in likes %}
+                <div class="like-user">
+                    {% if user.userprofile.photo %}
+                    <img src="{{ user.userprofile.photo.url }}" alt="{{ user.first_name }}">
+                    {% endif %}
+                    <p>{{ user.first_name }}</p>
+                </div>
+                {% empty %}
+                <p class="no-likes">Nobody likes this image yet.</p>
+                {% endfor %}
+            </div>
+            {% endwith %}
+        </div>
+    </div>
+</div>
+{% endblock %}

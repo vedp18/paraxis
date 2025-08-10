@@ -24,6 +24,7 @@ urlpatterns =[
     # instead of adding auth_urls manually we can include its urlpatters
     path('logout/', views.UserLogoutView.as_view(), name='logout'),
     path('login/', views.user_login, name='login'),
+    path('set-password/', views.set_password, name='set_password'),
     path('', include('django.contrib.auth.urls')),
 
     path('', login_required(RedirectView.as_view(url='me/', permanent=False))),

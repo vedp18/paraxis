@@ -4,7 +4,7 @@
 {% block title %}Log-in{% endblock %}
 
 {% block login_css %}
-<link rel="stylesheet" href="{% static 'css/login.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/login.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -44,8 +44,21 @@
         <div class="login-footer">
             <p>Forgot Password? <a href="{% url 'password_reset' %}">Reset Password</a></p>
             <p>Don’t have an account? <a href="{% url 'register' %}">Sign up</a></p>
-
         </div>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+        
+        <div class="social">
+            <a href="{% url 'social:begin' 'twitter' %}" class="social-btn twitter">
+                <img src="{% static 'icons/x_icon_logo.svg' %}" alt="Twitter">
+            </a>
+            <a href="{% url 'social:begin' 'google-oauth2' %}" class="social-btn google">
+                <img src="{% static 'icons/google-icon-logo.svg' %}" alt="Google">
+            </a>
+        </div>
+
     </div>
 </div>
 {% endblock %}

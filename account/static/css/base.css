@@ -125,6 +125,43 @@ body {
     background-color: #f4f6f8;
 }
 
+.register-container,
+.register-card {
+    display: flex;
+    /* align-items: flex-start; */
+}
+
+.left,
+.right {
+    flex: 1;
+}
+
+
+.right {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    justify-content: center;
+}
+
+.vertical-divider {
+    position: relative;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.vertical-divider::before,
+.vertical-divider::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: #ccc;
+    /* margin-left: 10px; */
+}
+
 /* Card styling */
 .register-card {
     /* background: #ffffff;
@@ -137,13 +174,14 @@ body {
 
     background: #ffffff;
     /* padding: 40px 30px; */
+    padding-top: 20px;
     padding-left: 30px;
     padding-right: 30px;
     padding-bottom: 30px;
     border-radius: 12px;
     box-shadow: 0 8px 30px #2c3e50;
     width: 100%;
-    max-width: 400px;
+    max-width: 800px;
     box-sizing: border-box;
 }
 
@@ -223,6 +261,71 @@ body {
 
 .register-footer a:hover {
     text-decoration: underline;
+}
+
+/* for registration/login.html */
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #888;
+    font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.divider:not(:empty)::before {
+    margin-right: .75em;
+}
+
+.divider:not(:empty)::after {
+    margin-left: .75em;
+}
+
+/* used in both registration/login.html and account/registration.html */
+.social {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.social-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border-radius: 8px;
+    width: 60px;
+    height: 60px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease;
+}
+
+.social-btn img {
+    width: 40px;
+    height: 40px;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+}
+
+.twitter {
+    background-color: #000;
+    border: 1px solid #ddd;
+    margin-right: 20px;
+}
+
+.google {
+    background-color: #fff;
+    border: 1px solid #ddd;
 }
 
 
@@ -428,10 +531,17 @@ body {
     background-color: #f8f9fa;
     z-index: 10;
     padding: 10px 0;
+    padding-bottom: 20px;
+    justify-content: space-between;
     /* border-bottom: 1px solid #ccc; */
 }
 
-.profile-tab {
+.create-post-btn-div {
+    margin-right: 20px;
+}
+
+.profile-tab,
+.create-post-btn {
     text-decoration: none;
     padding: 8px 15px;
     background-color: #2c3e5021;
@@ -439,9 +549,15 @@ body {
     border-radius: 4px;
 }
 
-.profile-tab.profile-active {
+.profile-tab.profile-active,
+.create-post-btn:hover {
     background-color: #2c3e50;
     color: white;
+}
+
+.profile-post-title {
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .profile-post-card {
@@ -452,21 +568,40 @@ body {
     padding-top: 12px;
     padding-left: 12px;
     padding-right: 12px;
+    /* padding-bottom: 12px; */
     border: 2px solid #2c3e50;
     margin-bottom: 1rem;
     border-radius: 4px;
+    width: 245px;
+    /* height: 400px;  */
+}
+
+
+.post-img {
+    border-radius: 8px;
+    width: 100%;
+    height: 245px;
+    object-fit: scale-down;
+}
+
+.profile-post-card-link {
+    text-decoration: none;
+    /* Removes underline */
+    color: inherit;
+    /* Keeps the text color same as surrounding text */
+}
+
+.profile-post-card-link:hover {
+    text-decoration: none;
+    /* Still no underline on hover */
 }
 
 .profile-post-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 2rem;
 }
 
-.profile-post-card img {
-    width: 100%;
-    border-radius: 8px;
-}
 
 .profile-user-card {
     display: flex;
@@ -487,75 +622,394 @@ body {
 }
 
 
-
-/* old */
-/* .profile-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
+/* create.css */
+/* ====== Layout ====== */
+.post-container {
+    max-width: 1000px;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.profile-header {
+.create-content {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    /* Responsive for smaller screens */
+}
+
+/* ====== Heading ====== */
+.post-container h1 {
+    text-align: center;
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* ====== Image Upload Box ====== */
+.image-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-container {
+    width: 500px;
+    height: 540px;
+    /* fixed height ensures object-fit works */
+    /* height: 100%    ; fixed height ensures object-fit works */
+    border: 2px dashed #ccc;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
+    background-color: #fafafa;
+    transition: border 0.3s ease, background-color 0.3s ease;
+    overflow: hidden;
+    /* ensures no overflow */
 }
 
-.profile-img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid #ccc;
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: scale-down;
+    border-radius: 12px;
+    /* scale down large images, keep small ones same size */
 }
 
-.profile-info h2 {
-    margin: 0;
-    font-size: 24px;
+
+.image-container.has-image {
+    border: none;
+    background-color: transparent;
 }
 
-.profile-info .email {
-    color: #666;
+.image-preview {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    border-radius: 8px;
 }
 
-.profile-actions {
-    margin-top: 10px;
-}
-
-.profile-btn {
-    padding: 8px 14px;
-    margin-right: 10px;
-    background: #3498db;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-}
-
-.profile-btn-secondary {
-    padding: 8px 14px;
-    margin-right: 10px;
-    background: #777;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-}
-
-.profile-stats {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 30px;
+.placeholder-text {
+    color: #999;
+    font-size: 14px;
     text-align: center;
 }
 
-.profile-stat h3 {
-    margin: 0;
-    font-size: 20px;
+/* ====== Form Styling ====== */
+.create-form {
+    flex: 1;
+    margin-right: 20px;
 }
 
-.profile-stat p {
-    color: #888;    
+.post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.profile-user-posts {
-    margin-top: 40px;
-} */
+.post-form label {
+    font-weight: 500;
+    color: #444;
+}
+
+.post-form input[type="text"],
+.post-form textarea,
+.post-form select,
+.post-form input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+/* ====== Submit Button ====== */
+.btn-submit {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #45a049;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 768px) {
+    .create-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-container {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+}
+
+
+/* post-detail.css */
+.post-detail-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.post-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.post-content {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.post-image img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.post-info {
+    flex: 1;
+}
+
+.likes-section {
+    margin-bottom: 10px;
+}
+
+.likes-count {
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.post-description {
+    margin: 15px 0;
+    line-height: 1.6;
+    color: #555;
+}
+
+.image-likes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.like-user {
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.like-user img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.no-likes {
+    color: #888;
+    font-style: italic;
+}
+
+
+
+/* password-set.css */
+/* Container centers card vertically and horizontally */
+.password-set-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    background-color: #f4f6f8;
+}
+
+/* Card with subtle shadow and rounded corners */
+.password-set-card {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 9px 18px #2c3e50;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+/* Heading style */
+.password-set-heading {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 30px;
+    color: #2c3e50;
+}
+
+.password-set-card input[type="password"] {
+    width: 100%;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+/* Submit button */
+.password-set-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #2c3e50;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.password-set-button:hover {
+    background-color: #3e6185;
+}
+
+
+
+
+/* password-reset-form.css */
+
+.password-reset-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    background-color: #f4f6f8;
+}
+
+/* Card styling */
+.password-reset-form-card {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px #2c3e50;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+/* Heading */
+.password-reset-form-heading {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
+    color: #2c3e50;
+}
+
+/* Input fields */
+.password-reset-form-card input[type="email"]{
+    width: 100%;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+/* Submit button */
+.password-reset-form-send-email-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #2c3e50;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.password-reset-form-send-email-button:hover {
+    background-color: #3e6185;
+}
+
+
+
+/* password-reset-confirm.css */
+/* container styling */
+.password-reset-confirm-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    background-color: #f4f6f8;
+}
+
+/* Card styling */
+.password-reset-confirm-card {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px #2c3e50;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+/* Heading */
+.password-reset-confirm-heading {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
+    color: #2c3e50;
+}
+
+/* Input fields */
+.password-reset-confirm-card input[type="password"]{
+    width: 100%;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+/* Submit button */
+.password-reset-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #2c3e50;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.password-reset-button:hover {
+    background-color: #3e6185;
+}

@@ -27,20 +27,32 @@
 
         <div class="profile-actions">
             <a href="{% url 'edit' %}" class="profile-btn">Edit Profile</a>
+            {% if user.has_usable_password %}
             <a href="{% url 'password_change' %}" class="profile-btn">Change Password</a>
+            {% else %}
+            <a href="{% url 'set_password' %}" class="profile-btn">Set Password</a>
+            {% endif %}
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="profile-content">
         <div class="profile-tab-bar">
-            <a href="?tab=posts"
-                class="profile-tab {% if tab == 'posts' or not tab %}profile-active{% endif %}">Posts</a>
-            <a href="?tab=followers"
-                class="profile-tab {% if tab == 'followers' %}profile-active{% endif %}">Followers</a>
-            <a href="?tab=following"
-                class="profile-tab {% if tab == 'following' %}profile-active{% endif %}">Following</a>
+            <div class="posts-followers-following">
+                <a href="?tab=posts"
+                    class="profile-tab {% if tab == 'posts' or not tab %}profile-active{% endif %}">Posts</a>
+                <a href="?tab=followers"
+                    class="profile-tab {% if tab == 'followers' %}profile-active{% endif %}">Followers</a>
+                <a href="?tab=following"
+                    class="profile-tab {% if tab == 'following' %}profile-active{% endif %}">Following</a>
+            </div>
+
+            <!-- Create Post Button -->
+            <div class="create-post-btn-div">
+                <a href="{% url 'post:create' %}" class="create-post-btn">➕ Create Post</a>
+            </div>
         </div>
+
 
         <div class="profile-tab-content">
             {% if tab == 'followers' %}

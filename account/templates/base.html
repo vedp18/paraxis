@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Social Dashboard{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=18">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=32">
     <!-- loading login css -->
     {% block login_css %}{% endblock %}
     <!-- loading change_password css -->
@@ -60,10 +60,10 @@
     <section class="messages">
         <ul>
             {% for message in messages %}
-            <li class="alert {{ message.tags }}">
+            <p class="alert {{ message.tags }}">
                 {{ message|safe }}
                 <span class="close">&times;</span>
-            </li>
+            </p>
             {% endfor %}
         </ul>
     </section>

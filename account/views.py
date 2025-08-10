@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .forms import LoginForm, RegistrationForm, UserEditForm, UserProfileEditForm
-from django.contrib.auth import authenticate, login
+from .forms import LoginForm, RegistrationForm, UserEditForm, UserProfileEditForm, SetPasswordForm
+from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from django.contrib import messages
@@ -72,9 +72,13 @@ def profile(request):
         {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
     ]
 
+    posts = request.user.posts.all()
+    for post in posts:
+        print(post.image)
+
     return render(request, 'account/profile.html', {
         'tab': tab,
-        'posts': dummy_posts,
+        'posts': posts,
         'followers': dummy_followers,
         'following': dummy_following,
         'posts_count': len(dummy_posts),
@@ -194,6 +198,27 @@ def edit(request):
     return render(request, 'account/edit.html', 
                   {'user_edit_form': user_edit_form,
                     'user_profile_edit_form':user_profile_edit_form})
+
+
+
+# This view is for setting password for only socially signed in with has_usable_password=False users
+@login_required
+def set_password(request):
+    user = request.user
+    if user.has_usable_password():
+        return redirect('profile')
+    
+    if request.method == 'POST':
+        form = SetPasswordForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, user)     # this keeps user logged in even after setting password
+            messages.success(request, 'Your password has been set.')
+            return redirect('profile')
+    else:
+        form = SetPasswordForm(user)
+    return render(request, 'registration/set_password.html', {'form':form})
+
 
 
 # This is custom csrf failure view which just redirect to account/

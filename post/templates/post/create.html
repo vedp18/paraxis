@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Create a Post{% endblock %}
+
+{% block content %}
+<div class="post-container">
+    <h1>Create a Post</h1>
+    <div class="create-content">
+
+        <!-- Image Wrapper -->
+        <div class="image-wrapper">
+            <div class="image-container {% if request.GET.url %}has-image{% endif %}">
+                {% if request.GET.url %}
+                <img src="{{ request.GET.url }}" id="image-preview" alt="Preview Image">
+                {% else %}
+                <img src="" id="image-preview" style="display:none;" alt="Preview Image">
+                <span id="placeholder-text" class="placeholder-text">No image</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Create Form -->
+        <div class="create-form">
+            <form method="post" enctype="multipart/form-data" class="post-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Post" class="btn-submit">
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<!-- Preview Script -->
+<script>
+    // Automatically detect file input field
+    const imageInput = document.querySelector('input[type="file"]');
+    const preview = document.getElementById('image-preview');
+    const placeholderText = document.getElementById('placeholder-text');
+    const container = document.querySelector('.image-container');
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    container.classList.add('has-image');
+                    if (placeholderText) placeholderText.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+                container.classList.remove('has-image');
+                if (placeholderText) placeholderText.style.display = 'block';
+            }
+        });
+    }
+</script>
+{% endblock %}

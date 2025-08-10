@@ -12,6 +12,8 @@ class UserProfile(models.Model):
     # photo - optional
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True)
 
+    # posts = models.ManyToManyField(Post, related_name='user', blank=True)
+
     # str method
     def __str__(self):
         return f'UserProfile of {self.user.username}'
