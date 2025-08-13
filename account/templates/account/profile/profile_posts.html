@@ -1,13 +1,24 @@
 {% load static %}
+{% load thumbnail %}
 <div class="profile-post-grid">
     {% for post in posts %}
-    <a href="{% url 'post:post_detail' post.pk post.slug %}" class="profile-post-card-link">
-        <div class="profile-post-card">
-            <p class="profile-post-title">{{post.title}}</p>
-            <img src="{{ post.image.url }}" class="post-img">
-            <p class="post-date">{{ post.created }}</p>
+    <div class="post-list-post-card">
+        <a href="{{ post.get_absolute_url }}">
+            {% thumbnail post.image 400x400 crop="smart" as im %}
+            <img src="{{ im.url }}" alt="{{ post.title }}">
+        </a>
+        <div class="post-list-top-overlay">
+            <span class="post-list-overlay-title">{{ post.title|truncatewords:3 }}</span>
         </div>
-    </a>
+        <div class="post-list-bottom-overlay">
+            <span class="post-list-overlay-title">
+                👁 {{ post.total_views }}
+            </span>
+            <span class="post-list-overlay-likes">
+                ❤️ {{ post.likes }}
+            </span>
+        </div>
+    </div>
     {% empty %}
     <p>No posts to show.</p>
     {% endfor %}

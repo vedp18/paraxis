@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .forms import LoginForm, RegistrationForm, UserEditForm, UserProfileEditForm, SetPasswordForm
-from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth import authenticate, login, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from django.contrib import messages
@@ -9,6 +9,17 @@ from django.views import View
 from django.contrib.auth import logout as auth_logout
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import Contact
+
+import redis
+from django.conf import settings
+# Connect to redis
+r = redis.Redis(host=settings.REDIS_HOST,
+                port=settings.REDIS_PORT,
+                db=settings.REDIS_DB)
 
 
 
@@ -18,84 +29,31 @@ from django.core.exceptions import ValidationError
 @login_required     # adding this helps in protecting pages which required login (it also redirects to login if this views is called and no user is logged in)
 def profile(request):
     tab = request.GET.get('tab', 'posts')
-    
-    dummy_posts = [
-        {'image': 'images/post1.jpg', 'created': '2025-08-01'},
-        {'image': 'images/post2.jpg', 'created': '2025-08-02'},
-        {'image': 'images/post3.jpg', 'created': '2025-08-03'},
-        {'image': 'images/post4.jpg', 'created': '2025-08-01'},
-        {'image': 'images/post5.jpg', 'created': '2025-08-02'},
-        {'image': 'images/post6.jpg', 'created': '2025-08-03'},
-        {'image': 'images/post7.jpg', 'created': '2025-08-01'},
-        {'image': 'images/post8.jpg', 'created': '2025-08-02'},
-        {'image': 'images/post9.jpg', 'created': '2025-08-03'},
-        {'image': 'images/post10.jpg', 'created': '2025-08-01'},
-        {'image': 'images/post11.jpg', 'created': '2025-08-02'},
-        {'image': 'images/post12.jpg', 'created': '2025-08-03'},
-    ]
-
-    dummy_followers = [
-        {'username': 'john_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'jane_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'john_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'jane_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'john_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'jane_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'john_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'jane_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'john_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'jane_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'john_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'jane_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'john_doe', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'jane_doe', 'photo': 'images/default_user_profile.webp'},
-    ]
-
-    dummy_following = [
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'alex_smith', 'photo': 'images/default_user_profile.webp'},
-        {'username': 'emma_jones', 'photo': 'images/default_user_profile.webp'},
-    ]
 
     posts = request.user.posts.all()
+
+    keys = [f"post:{post.id}:viewers" for post in posts]
+    viewers = r.mget(keys)
+    pipe = r.pipeline()
     for post in posts:
-        print(post.image)
+        pipe.scard(f"post:{post.id}:viewers")
+    
+    view_counts = pipe.execute()
+
+    for post, count in zip(posts, view_counts):
+        post.total_views = count
+
+
 
     return render(request, 'account/profile.html', {
-        'tab': tab,
-        'posts': posts,
-        'followers': dummy_followers,
-        'following': dummy_following,
-        'posts_count': len(dummy_posts),
-        'followers_count': len(dummy_followers),
-        'following_count': len(dummy_following),
-    })
-    # return render(request,'account/profile.html', {'section': 'profile'})
-
+        'tab' : tab,
+        'section': 'profile',
+        'posts':posts
+    })    
 
 
 # This view is for User Login
-from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
-User = get_user_model()
+user_model = get_user_model()
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -113,7 +71,7 @@ def user_login(request):
                 lookup_field = 'username'
                 
             try:
-                user = User.objects.get(**{lookup_field : username_or_email})
+                user = user_model.objects.get(**{lookup_field : username_or_email})
                 if not user.is_active:
                     form.add_error(None, "Your account is inactive. Please contact admin.")
                 else:
@@ -125,7 +83,7 @@ def user_login(request):
                         return redirect('profile')
                     else:
                         form.add_error(None, "Invalid password.")
-            except User.DoesNotExist:
+            except user_model.DoesNotExist:
                 form.add_error(None, "Invalid username.")
     else:
         form = LoginForm()
@@ -217,7 +175,67 @@ def set_password(request):
             return redirect('profile')
     else:
         form = SetPasswordForm(user)
-    return render(request, 'registration/set_password.html', {'form':form})
+    return render(request, 
+                  'registration/set_password.html', 
+                  {'form':form})
+
+
+
+# This view is for providing user_list
+@login_required
+def user_list(request):
+    users = User.objects.exclude(id=request.user.id).filter(is_active=True, is_superuser=False)
+    return render(request, 
+                  'account/user/user_list.html', 
+                  {'section': 'people',
+                    'users': users})
+
+# This view is for user detail view (other users)
+@login_required
+def user_detail(request, username):
+    user = get_object_or_404(User, 
+                             username=username, 
+                             is_active=True)
+    return render(request,
+                  'account/user/user_detail.html',
+                   {'section': 'people',
+                     'user': user})
+
+
+
+# This view is for follow or unfollow user
+@require_POST
+@login_required
+def user_follow_unfollow(request):
+    user_id = request.POST.get('id')
+    action = request.POST.get('action')
+    print('atleast this was done')
+    if user_id and action:
+        try:
+            user = User.objects.get(id=user_id)
+            if action == 'follow':
+                Contact.objects.get_or_create(
+                    user_from=request.user,
+                    user_to=user
+                )
+            else:
+                Contact.objects.filter(
+                    user_from=request.user,
+                    user_to=user
+                ).delete()
+            return JsonResponse({'status': 'ok'})
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 
+                                 'error': User.DoesNotExist})
+    return JsonResponse({'status': 'error',
+                         'error': 'Invalid user_id or action'})
+
+
+
+
+
+
+
 
 
 

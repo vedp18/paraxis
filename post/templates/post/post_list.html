@@ -1,0 +1,23 @@
+{% load thumbnail %}
+
+{% for post in posts %}
+<div class="post-list-post-card">
+    <a href="{{ post.get_absolute_url }}">
+        {% thumbnail post.image 400x400 crop="smart" as im %}
+        <img src="{{ im.url }}" alt="{{ post.title }}">
+    </a>
+    <div class="post-list-top-overlay">
+        <span class="post-list-overlay-title">{{ post.title|truncatewords:3 }}</span>
+    </div>
+    <div class="post-list-bottom-overlay">
+        <span class="post-list-overlay-title">
+            👁 {{ post.total_views }}
+        </span>
+        <span class="post-list-overlay-likes">
+            ❤️ {{ post.likes }}
+        </span>
+    </div>
+</div>
+{% empty %}
+<p class="post-list-no-images">No images found.</p>
+{% endfor %}

@@ -9,20 +9,20 @@
     <!-- Sidebar -->
     <div class="profile-sidebar">
         <div class="profile-picture">
-            {% if user.userprofile.photo %}
-            <img src="{{ user.userprofile.photo.url }}" class="profile-photo">
+            {% if request.user.userprofile.photo %}
+            <img src="{{ request.user.userprofile.photo.url }}" class="profile-photo">
             {% else %}
             <img src="{% static 'images/default_user_profile.webp' %}" class="profile-photo">
             {% endif %}
         </div>
-        <h2>{{ user.username }}</h2>
-        <p><i class="fa fa-envelope"></i> {{ user.email }}</p>
-        <p><i class="fa fa-calendar"></i> Joined on {{ user.date_joined|date:"F j, Y" }}</p>
+        <h2>{{ request.user.username }}</h2>
+        <p><i class="fa fa-envelope"></i> {{ request.user.email }}</p>
+        <p><i class="fa fa-calendar"></i> Joined on {{ request.user.date_joined|date:"F j, Y" }}</p>
 
         <div class="profile-stats">
-            <p><strong>Posts:</strong> {{ posts_count }}</p>
-            <p><strong>Followers:</strong> {{ followers_count }}</p>
-            <p><strong>Following:</strong> {{ following_count }}</p>
+            <p class="profile-stats-posts"><strong>Posts:</strong> {{ request.user.posts.count }}</p>
+            <p class="profile-stats-followers"><strong>Followers:</strong> {{ request.user.followers.count }}</p>
+            <p class="profile-stats-following" data-count="{{ request.user.following.count }}"><strong>Following:</strong> {{ request.user.following.count }}</p>
         </div>
 
         <div class="profile-actions">
@@ -66,4 +66,59 @@
     </div>
 
 </div>
+{% endblock %}
+
+
+{% block domready %}
+const url = '{% url "user_follow_unfollow" %}';
+var options = {
+    method: 'POST',
+    headers: { 'X-CSRFToken': csrftoken },
+    mode: 'same-origin'
+};
+
+// Select ALL follow/unfollow buttons
+document.querySelectorAll('a.follower-following-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+        e.preventDefault();
+        var followUnfollowButton = this;
+
+        // Add request body
+        var formData = new FormData();
+        formData.append('id', followUnfollowButton.dataset.id);
+        formData.append('action', followUnfollowButton.dataset.action);
+        options['body'] = formData;
+
+        // Send HTTP request
+        fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+                if (data['status'] === 'ok') {
+                    var previousAction = followUnfollowButton.dataset.action;
+                    var action = previousAction === 'follow' ? 'unfollow' : 'follow';
+
+                    // Update button dataset
+                    followUnfollowButton.dataset.action = action;
+
+                    // Update button text + class
+                    if (action === 'follow') {
+                        followUnfollowButton.textContent = 'Follow';
+                        followUnfollowButton.classList.remove('following');
+                        followUnfollowButton.classList.add('follow');
+                    } else {
+                        followUnfollowButton.textContent = 'Following';
+                        followUnfollowButton.classList.remove('follow');
+                        followUnfollowButton.classList.add('following');
+                    }
+
+                    // Update following count in sidebar
+                    var followingP = document.querySelector('p.profile-stats-following');
+                    var totalFollowing = parseInt(followingP.dataset.count);
+                    totalFollowing = previousAction === 'follow' ? totalFollowing + 1 : totalFollowing - 1;
+                    followingP.dataset.count = totalFollowing;
+                    followingP.innerHTML = `<strong>Following:</strong> ${totalFollowing}`;
+                }
+            });
+    });
+});
 {% endblock %}

@@ -1,47 +1,64 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
 <div class="post-detail-container">
-    <h1 class="post-title">{{ post.title }}</h1>
-
     <div class="post-content">
+
+        <!-- Left: Post Image -->
         <div class="post-image">
             <img src="{{ post.image.url }}" alt="{{ post.title }}">
         </div>
 
+        <!-- Right: Post Info -->
         <div class="post-info">
-            {% with total_likes=post.likes.count %}
-            <div class="likes-section">
+            <div class="post-header">
+                {% if post.user.userprofile.photo %}
+                    <img src="{{ post.user.userprofile.photo.url }}" alt="{{ post.user.get_full_name }}" class="post-user-photo">
+                {% else %}
+                    <img src="{% static 'images/default_user_profile.webp' %}" alt="Default profile picture" class="post-user-photo">
+                {% endif %}
+                <span class="post-username">{{ post.user.username }}</span>
+            </div>
+
+            {% with total_likes=post.likes %}
+            <div class="stats-section">
                 <span class="likes-count" data-count="{{ total_likes }}">
                     <strong>{{ total_likes }}</strong> like{{ total_likes|pluralize }}
                 </span>
-                <a href="#" data-id="{{ post.id }}" data-action="{% if request.user in post.likes.all %}un{% endif %}like"
-                    class="like-btn">
-                    {% if request.user not in post.likes.all %}
-                    👍 Like
+                <span class="views-count" data-count="{{ total_views }}">
+                    <strong>{{ total_views }}</strong> view{{ total_views|pluralize }}
+                </span>
+                <a href="#"
+                   data-id="{{ post.id }}"
+                   data-action="{% if request.user in post.users_liked.all %}un{% endif %}like"
+                   class="like-btn {% if request.user in post.users_liked.all %}liked{% endif %}">
+                    {% if request.user not in post.users_liked.all %}
+                        👍🏼 Like
                     {% else %}
-                    👎🏼 Unlike
+                        👎🏼 Unlike
                     {% endif %}
                 </a>
             </div>
 
             <div class="post-description">
-                {{ post.description|linebreaks }}
+                <p><strong>{{ post.user.username }}</strong> {{ post.description|linebreaks }}</p>
             </div>
 
-            <h3>People who liked this:</h3>
+            <h3 style="margin-bottom:0px;">Liked by:</h3>
             <div class="post-likes">
-                {% for user in post.likes.all %}
-                <div class="like-user">
-                    {% if user.userprofile.photo %}
-                    <img src="{{ user.userprofile.photo.url }}" alt="{{ user.first_name }}">
-                    {% endif %}
-                    <p>{{ user.first_name }}</p>
-                </div>
+                {% for user in post.users_liked.all %}
+                    <div class="like-user">
+                        {% if user.userprofile.photo %}
+                            <img src="{{ user.userprofile.photo.url }}" alt="{{ user.first_name }}">
+                        {% else %}
+                            <img src="{% static 'images/default_user_profile.webp' %}" alt="Default profile picture">
+                        {% endif %}
+                        <p>{{ user.first_name }}</p>
+                    </div>
                 {% empty %}
-                <p class="no-likes">Nobody likes this image yet.</p>
+                    <p class="no-likes">Nobody likes this post yet.</p>
                 {% endfor %}
             </div>
             {% endwith %}
@@ -51,56 +68,46 @@
 {% endblock %}
 
 {% block domready %}
-const_url = '{% url "post:like" %}';
+const likeUrl = '{% url "post:like" %}';
 var options = {
-method: 'POST',
-headers: {'X-CSRFToken': csrftoken},
-mode: 'same-origin'
-}
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+};
 
-document.querySelector('a.like-btn')
-.addEventListener('click', function(e){
-e.preventDefault();
-var likeButton = this;
+document.querySelector('a.like-btn').addEventListener('click', function(e){
+    e.preventDefault();
+    var likeButton = this;
 
-// add request body
-var formData = new FormData();
-formData.append('id', likeButton.dataset.id);
-formData.append('action', likeButton.dataset.action);
-options['body'] = formData;
+    var formData = new FormData();
+    formData.append('id', likeButton.dataset.id);
+    formData.append('action', likeButton.dataset.action);
+    options['body'] = formData;
 
-// send HTTP request
-fetch(const_url, options)
-.then(response => response.json())
-.then(data => {
-if (data['status'] === 'ok')
-{
-var previousAction = likeButton.dataset.action;
+    fetch(likeUrl, options)
+    .then(response => response.json())
+    .then(data => {
+        if (data['status'] === 'ok') {
+            var previousAction = likeButton.dataset.action;
+            var action = previousAction === 'like' ? 'unlike' : 'like';
+            likeButton.dataset.action = action;
 
-// toggle button text and data-action
-var action = previousAction === 'like' ? 'unlike' : 'like';
-likeButton.dataset.action = action;
-likeButton.textContent = action === 'like' ? '👍 Like' : '👎🏼 Unlike';
+            if (action === 'unlike') {
+                likeButton.classList.add('liked');
+                likeButton.textContent = '👎🏼 Unlike';
+            } else {
+                likeButton.classList.remove('liked');
+                likeButton.textContent = '👍🏼 Like';
+            }
 
-// update like count
-var likeSpan = document.querySelector('span.likes-count');
-var totalLikes = parseInt(likeSpan.dataset.count);
+            var likeSpan = document.querySelector('span.likes-count');
+            var totalLikes = parseInt(likeSpan.dataset.count);
+            totalLikes = previousAction === 'like' ? totalLikes + 1 : totalLikes - 1;
+            likeSpan.dataset.count = totalLikes;
+            likeSpan.innerHTML = `<strong>${totalLikes}</strong> like${totalLikes === 1 ? '' : 's'}`;
 
-totalLikes = previousAction === 'like' ? totalLikes + 1 : totalLikes - 1;
-likeSpan.dataset.count = totalLikes;
-likeSpan.innerHTML = `<strong>${totalLikes}</strong> like${totalLikes === 1 ? '' : 's'}`;
-
-
-// ⬇ Replace liked users list instantly
-document.querySelector('.post-likes').innerHTML = data.liked_users_html;
-
-
-
-}
-})
-
-
-
+            document.querySelector('.post-likes').innerHTML = data.users_liked_html;
+        }
+    });
 });
-
 {% endblock %}

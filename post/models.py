@@ -14,13 +14,15 @@ class Post(models.Model):
     image = models.ImageField(upload_to='images/%Y/%m/%d/')
     description = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    likes = models.ManyToManyField(settings.AUTH_USER_MODEL,
+    users_liked = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                    related_name='post_liked',
                                    blank=True)
-    
+    likes = models.PositiveIntegerField(default=0)
+
     class Meta:
         indexes = [
             models.Index(fields=['-created']),
+            models.Index(fields=['-likes']),
         ]
         ordering = ['-created']
 
@@ -33,4 +35,4 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('post:post_detail', args=[self.id, self.slug])
+        return reverse('post:post_detail', args=[self.user.username, self.id, self.slug])

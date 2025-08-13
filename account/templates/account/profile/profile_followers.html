@@ -1,11 +1,43 @@
 {% load static %}
-<div class="followers-list">
-    {% for user in followers %}
-    <div class="profile-user-card">
-        <img src="{% static user.photo %}" class="profile-user-photo">
-        <p>{{ user.username }}</p>
-    </div>
+{% load thumbnail %}
+
+<div class="followers-following-list">
+    {% for user in request.user.followers.all %}
+        <div class="follower-following-card">
+            <!-- Profile Image -->
+            <a href="{{ user.get_absolute_url }}" class="follower-following-avatar">
+                {% if user.userprofile.photo %}
+                    <img src="{% thumbnail user.userprofile.photo 60x60 crop="center" %}" 
+                         alt="{{ user.get_full_name }}">
+                {% else %}
+                    <img src="{% static 'images/default_user_profile.webp' %}"
+                         alt="{{ user.get_full_name }}">
+                {% endif %}
+            </a>
+
+            <!-- User Info -->
+            <div class="follower-following-info">
+                <a href="{{ user.get_absolute_url }}" class="follower-following-name">
+                    {{ user.get_full_name }}
+                </a>
+                <span class="follower-following-username">@{{ user.username }}</span>
+            </div>
+
+            <!-- Follow Button -->
+            <div class="follower-following-action">
+                <a href="#"
+                    data-id="{{ user.id }}"
+                    data-action="{% if request.user in user.followers.all %}un{% endif %}follow"
+                    class="follower-following-btn {% if request.user in user.followers.all %}following{% else %}follow{% endif %}">
+                    {% if request.user not in user.followers.all %}
+                        Follow
+                    {% else %}
+                        Following
+                    {% endif %}
+                </a>
+            </div>
+        </div>
     {% empty %}
-    <p>No followers to show.</p>
+        <p>No followers to show.</p>
     {% endfor %}
 </div>

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import secret_keys
 
+from django.urls import reverse_lazy
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,9 +45,12 @@ INSTALLED_APPS = [
     'social_django',
     'django_extensions',
     'post.apps.PostConfig',
+    'easy_thumbnails',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -175,3 +180,34 @@ SOCIAL_AUTH_PIPELINE = [
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 ]
+
+
+# this can be used to specify canonical or absolute url for specific models (for each objects of that model)
+ABSOLUTE_URL_OVERRIDES = {
+    'auth.user': lambda u: reverse_lazy('user_detail',
+                                        args=[u.username])
+} 
+
+# settings.py
+SECURE_SSL_REDIRECT = True      # Force HTTPS
+SESSION_COOKIE_SECURE = True    # Send cookies only over HTTPS
+CSRF_COOKIE_SECURE = True       # Send CSRF tokens only over HTTPS
+
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+
+# if there is MIMETYPE error for debug_toolbar  
+# if DEBUG:
+#     import mimetypes
+#     mimetypes.add_type('application/javascript', '.js', True)
+#     mimetypes.add_type('text/css', '.css', True)
+
+# redis server configuration
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+
+

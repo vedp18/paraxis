@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load thumbnail static %}
+
+{% block title %}{{ user.get_full_name }}{% endblock %}
+
+{% block content %}
+<h1 class="user-detail-profile-title">{{ user.get_full_name }}</h1>
+
+<div class="user-detail-profile-header">
+    {% if user.userprofile.photo %}
+        <img src="{% thumbnail user.userprofile.photo 180x180 crop="center" %}" 
+             alt="{{ user.get_full_name }}" 
+             class="user-detail-photo">
+    {% else %}
+        <img src="{% static 'images/default_user_profile.webp' %}" 
+             alt="Default profile picture" 
+             class="user-detail-photo">
+    {% endif %}
+
+    <div class="user-detail-profile-meta">
+        <div class="user-detail-top-row">
+            <h1 class="user-detail-profile-title">{{ user.get_full_name }}</h1>
+            <a href="#"
+               data-id="{{ user.id }}"
+               data-action="{% if request.user in user.followers.all %}un{% endif %}follow"
+               class="user-detail-follow-unfollow-btn {% if request.user in user.followers.all %}following{% else %}follow{% endif %}">
+                {% if request.user not in user.followers.all %}
+                    Follow
+                {% else %}
+                    Following
+                {% endif %}
+            </a>
+        </div>
+
+        <ul class="user-detail-stats">
+            <li><strong>{{ user.posts.count }}</strong> posts</li>
+            <li class="user-detail-followers-count" data-count="{{ user.followers.count }}"><strong>{{ user.followers.count }}</strong> followers</li>
+            <li><strong>{{ user.following.count }}</strong> following</li>
+        </ul>
+    </div>
+</div>
+
+<hr class="user-detail-profile-divider">
+
+<div id="post-list" class="list-image-grid">
+    {% include "post/post_list.html" with posts=user.posts.all %}
+</div>
+{% endblock %}
+
+
+{% block domready %}
+  const url = '{% url "user_follow_unfollow" %}';
+  var options = {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+  }
+
+  document.querySelector('a.user-detail-follow-unfollow-btn')
+          .addEventListener('click', function(e){
+    e.preventDefault();
+    var followUnfollowButton = this;
+
+    // add request body
+    var formData = new FormData();
+    formData.append('id', followUnfollowButton.dataset.id);
+    formData.append('action', followUnfollowButton.dataset.action);
+    options['body'] = formData;
+
+    // send HTTP request
+    fetch(url, options)
+    .then(response => response.json())
+    .then(data => {
+      if (data['status'] === 'ok')
+      {
+        var previousAction = followUnfollowButton.dataset.action;
+
+        var action = previousAction === 'follow' ? 'unfollow' : 'follow';
+        followUnfollowButton.dataset.action = action;
+
+        // Toggle text
+        if (action === 'follow') {
+            followUnfollowButton.textContent = 'Follow';
+            followUnfollowButton.classList.remove('following');
+            followUnfollowButton.classList.add('follow');
+        } else {
+            followUnfollowButton.textContent = 'Following';
+            followUnfollowButton.classList.remove('follow');
+            followUnfollowButton.classList.add('following');
+        }
+
+
+        // toggle button text and data-action
+        var action = previousAction === 'follow' ? 'unfollow' : 'follow';
+        followUnfollowButton.dataset.action = action;
+        followUnfollowButton.textContent = action === 'follow'? 'Follow' : 'Following';
+
+        // update follower count
+        var followerSpan = document.querySelector('li.user-detail-followers-count');
+        var totalFollowers = parseInt(followerSpan.dataset.count);
+
+        totalFollowers = previousAction === 'follow' ? totalFollowers + 1 : totalFollowers - 1;
+        followerSpan.dataset.count = totalFollowers;
+        followerSpan.innerHTML = `<strong>${totalFollowers}</strong> follower${totalFollowers === 1 ? '' : 's'}`;
+      }
+    })
+  });
+{% endblock %}

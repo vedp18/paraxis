@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Posts{% endblock %}
+
+{% block content %}
+<div class="list-container">
+    <div id="list-image-grid" class="list-image-grid">
+        {% include "post/post_list.html" %}
+    </div>
+</div>
+{% endblock %}
+
+{% block domready %}
+    var page = 1;
+    var emptyPage = false;
+    var blockRequest = false;
+
+    window.addEventListener('scroll', function(e){
+        var margin = document.body.clientHeight - window.innerHeight - 200;
+        if(window.pageYOffset > margin && !emptyPage && !blockRequest){
+            blockRequest = true;
+            page += 1;
+
+            fetch('?images_only=1&page=' + page)
+            .then(response => response.text())
+            .then(html =>{
+                if(html === ''){
+                    emptyPage = true;
+                }
+                else {
+                    var imageList = document.getElementById('list-image-grid');
+                    imageList.insertAdjacentHTML('beforeEnd', html);
+                    blockRequest = false;
+                }
+            })
+        }
+    });
+
+    // Launch scroll event
+
+    const scrollEvent = new Event('scroll');
+    window.dispatchEvent(scrollEvent);
+
+{% endblock %}

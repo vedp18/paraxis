@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load thumbnail static %}
+
+{% block title %}People{% endblock %}
+
+{% block content %}
+<h1 class="user-list-page-title">People</h1>
+
+<div id="user-list-people-list">
+    {% for user in users %}
+    <div class="user-list-user-card">
+        <a href="{{ user.get_absolute_url }}">
+            {% if user.userprofile.photo %}
+                <img src="{% thumbnail user.userprofile.photo 180x180 crop="center" %}" 
+                    alt="{{ user.get_full_name }}" 
+                    class="user-list-user-photo">
+            {% else %}
+                <img src="{% static 'images/default_user_profile.webp' %}"
+                    style="width:180px; height:180px; object-fit:cover; object-position:center;"
+                    alt="{{ user.get_full_name }}"
+                    class="user-list-user-photo">   
+            {% endif %}
+        </a>
+        <div class="user-list-user-info">
+            <a href="{{ user.get_absolute_url }}" class="user-list-user-name">
+                {{ user.get_full_name }}
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <p class="user-list-no-users">No people found.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Social Dashboard{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=33">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=41">
     <!-- loading login css -->
     {% block login_css %}{% endblock %}
     <!-- loading change_password css -->
@@ -25,15 +25,15 @@
                     <li {% if section == 'profile' %}class="active" {% endif %}>
                         <a href="{% url 'profile' %}">Profile</a>
                     </li>
-                    <!-- <li {% if section == 'posts' %}class="active" {% endif %}>
-                        <a href="#">Posts</a>
+                    <li {% if section == 'posts' %}class="active" {% endif %}>
+                        <a href="{% url 'post:list'%}">Posts</a>
                     </li>
-                    <li {% if section == 'followers' %}class="active" {% endif %}>
-                        <a href="#">Followers</a>
+                    <li {% if section == 'people' %}class="active" {% endif %}>
+                        <a href="{% url "user_list" %}">People</a>
                     </li>
-                    <li {% if section == 'profile' %}class="active" {% endif %}>
+                    {% comment %} <li {% if section == 'profile' %}class="active" {% endif %}>
                         <a href="#">Profile</a>
-                    </li> -->
+                    </li>  {% endcomment %}
                 </ul>
             </nav>
             {% endif %}
