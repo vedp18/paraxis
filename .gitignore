@@ -87,7 +87,12 @@ ipython_config.py
 *.key
 secret_keys.py
 *.sqlite3
+.env
 
+# dockerfiles
+Dockerfile
+.dockerignore
+docker-compose.yml
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
